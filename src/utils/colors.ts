@@ -1,0 +1,15 @@
+export const colors = {
+  background: '#0F0F0F',
+  surface: '#1A1A1A',
+  surfaceElevated: '#252525',
+  primary: '#4C9EFF',
+  onPrimary: '#FFFFFF',
+  onSurface: '#E8E8E8',
+  onSurfaceMuted: '#8A8A8A',
+  onDisabled: '#404040',
+  border: '#2A2A2A',
+  difficultyEasy: '#4CAF50',
+  difficultyMedium: '#FF9800',
+  difficultyHard: '#F44336',
+  revealOverlay: 'rgba(15, 15, 15, 0.85)',
+};

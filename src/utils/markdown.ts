@@ -1,0 +1,46 @@
+import { colors } from './colors';
+
+export const markdownStyles = {
+  body: { color: colors.onSurface, fontSize: 14, lineHeight: 22 },
+  heading1: { color: colors.onSurface, fontSize: 20, fontWeight: '700' as const, marginBottom: 8 },
+  heading2: { color: colors.onSurface, fontSize: 18, fontWeight: '700' as const, marginBottom: 6 },
+  heading3: { color: colors.onSurface, fontSize: 16, fontWeight: '600' as const, marginBottom: 4 },
+  paragraph: { color: colors.onSurface, marginBottom: 8, lineHeight: 22 },
+  code_inline: {
+    backgroundColor: colors.surfaceElevated,
+    color: colors.primary,
+    fontFamily: 'Menlo',
+    fontSize: 13,
+    paddingHorizontal: 4,
+    borderRadius: 3,
+  },
+  fence: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: 6,
+    padding: 12,
+    marginVertical: 8,
+  },
+  code_block: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: 6,
+    padding: 12,
+    marginVertical: 8,
+    fontFamily: 'Menlo',
+    fontSize: 13,
+    color: colors.onSurface,
+  },
+  list_item: { color: colors.onSurface, marginBottom: 4 },
+  bullet_list_icon: { color: colors.onSurfaceMuted },
+  ordered_list_icon: { color: colors.onSurfaceMuted },
+  strong: { fontWeight: '700' as const, color: colors.onSurface },
+  em: { fontStyle: 'italic' as const, color: colors.onSurface },
+  blockquote: {
+    borderLeftColor: colors.primary,
+    borderLeftWidth: 3,
+    paddingLeft: 12,
+    marginLeft: 0,
+    marginVertical: 6,
+  },
+  hr: { backgroundColor: colors.border, height: 1, marginVertical: 12 },
+  link: { color: colors.primary },
+};

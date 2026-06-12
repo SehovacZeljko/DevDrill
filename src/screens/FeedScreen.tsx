@@ -10,15 +10,20 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Feed'>;
 
 export default function FeedScreen({ route }: Props) {
   const { categoryId } = route.params;
-  const { questions, isLoadingMore, hasMore, loadNextPage } = useFeed(categoryId);
+  const { questions, isLoadingMore, hasMore, loadNextPage, setQuestionBookmarked } = useFeed(categoryId);
   const { handleReveal, handleBookmarkToggle } = useProgress();
+
+  function onBookmarkToggle(questionId: number, currentlyBookmarked: boolean) {
+    handleBookmarkToggle(questionId, currentlyBookmarked);
+    setQuestionBookmarked(questionId, !currentlyBookmarked);
+  }
 
   function renderItem({ item }: { item: QuestionWithProgress }) {
     return (
       <QuestionCard
         question={item}
         onReveal={handleReveal}
-        onBookmarkToggle={handleBookmarkToggle}
+        onBookmarkToggle={onBookmarkToggle}
       />
     );
   }

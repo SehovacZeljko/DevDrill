@@ -42,5 +42,11 @@ export function useFeed(categoryId: number) {
     setIsLoadingMore(false);
   }, [categoryId, isLoadingMore, hasMore]);
 
-  return { questions, isLoadingMore, hasMore, loadNextPage };
+  const setQuestionBookmarked = useCallback((questionId: number, bookmarked: boolean) => {
+    setQuestions(prev =>
+      prev.map(q => q.id === questionId ? { ...q, bookmarked: bookmarked ? 1 : 0 } : q),
+    );
+  }, []);
+
+  return { questions, isLoadingMore, hasMore, loadNextPage, setQuestionBookmarked };
 }

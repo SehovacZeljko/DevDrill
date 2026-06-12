@@ -11,7 +11,7 @@ export default function HomeScreen({ navigation }: Props) {
       <Text style={styles.title}>Home — placeholder</Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('Feed', { categoryId: 1, categoryName: 'JavaScript' })}
+        onPress={() => navigation.navigate('Feed', { categoryId: 2, categoryName: 'JavaScript' })}
       >
         <Text style={styles.buttonText}>Go to Feed</Text>
       </TouchableOpacity>

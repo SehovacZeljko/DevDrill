@@ -1,53 +1,76 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { QuestionCard } from '../components/QuestionCard';
+import { useFeed } from '../hooks/useFeed';
+import { useProgress } from '../hooks/useProgress';
 import { QuestionWithProgress, RootStackParamList } from '../types';
 import { colors } from '../utils/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Feed'>;
 
-const SAMPLE_QUESTION: QuestionWithProgress = {
-  id: 1,
-  category_id: 1,
-  title: 'What is the difference between `==` and `===` in JavaScript?',
-  answer_markdown: `The \`==\` operator performs **type coercion** before comparing, while \`===\` (strict equality) compares both value and type without coercion.
-
-\`\`\`js
-0 == '0'   // true  — string coerced to number
-0 === '0'  // false — different types
-null == undefined   // true
-null === undefined  // false
-\`\`\`
-
-Always prefer \`===\` in production code. Use \`==\` only when you explicitly want to allow type coercion, which is rare. Linters like ESLint enforce this via the \`eqeqeq\` rule.`,
-  difficulty: 2,
-  tags: 'equality,types,coercion',
-  sort_order: 1,
-  is_active: 1,
-  created_at: 1700000000,
-  status: 0,
-  bookmarked: 0,
-  times_revealed: 0,
-};
-
 export default function FeedScreen({ route }: Props) {
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+  const { categoryId } = route.params;
+  const { questions, isLoadingMore, hasMore, loadNextPage } = useFeed(categoryId);
+  const { handleReveal, handleBookmarkToggle } = useProgress();
+
+  function renderItem({ item }: { item: QuestionWithProgress }) {
+    return (
       <QuestionCard
-        question={SAMPLE_QUESTION}
-        onReveal={(id) => console.log('reveal', id)}
-        onBookmarkToggle={(id, current) => console.log('bookmark', id, current)}
+        question={item}
+        onReveal={handleReveal}
+        onBookmarkToggle={handleBookmarkToggle}
       />
-    </ScrollView>
+    );
+  }
+
+  function renderFooter() {
+    if (!isLoadingMore) return null;
+    return <ActivityIndicator style={styles.spinner} color={colors.primary} />;
+  }
+
+  function renderEmpty() {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No questions in this category yet.</Text>
+      </View>
+    );
+  }
+
+  return (
+    <FlatList
+      data={questions}
+      keyExtractor={item => String(item.id)}
+      renderItem={renderItem}
+      contentContainerStyle={styles.content}
+      style={styles.list}
+      ListFooterComponent={renderFooter}
+      ListEmptyComponent={renderEmpty}
+      onEndReached={hasMore ? loadNextPage : undefined}
+      onEndReachedThreshold={0.4}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  list: {
     flex: 1,
     backgroundColor: colors.background,
   },
   content: {
     padding: 16,
+    paddingBottom: 32,
+  },
+  spinner: {
+    marginVertical: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 80,
+  },
+  emptyText: {
+    color: colors.onSurfaceMuted,
+    fontSize: 15,
   },
 });

@@ -27,6 +27,8 @@ import { seedAngularLessons } from './seed/lessons/angular';
 import { seedSqlFundamentalsLessons } from './seed/lessons/sql-fundamentals';
 import { seedDataStructuresLessons } from './seed/lessons/data-structures';
 import { seedGitLessons } from './seed/lessons/git';
+import { seedAlgorithmsLessons } from './seed/lessons/algorithms';
+import { seedReactNativeLessons } from './seed/lessons/react-native';
 
 const SCHEMA_DDL = `
   CREATE TABLE IF NOT EXISTS category (
@@ -173,5 +175,15 @@ export function runMigrations(db: QuickSQLiteConnection): void {
   if (currentVersion <= 6) {
     seedGitLessons(db);
     db.execute('PRAGMA user_version = 7');
+  }
+
+  if (currentVersion <= 7) {
+    seedAlgorithmsLessons(db);
+    db.execute('PRAGMA user_version = 8');
+  }
+
+  if (currentVersion <= 8) {
+    seedReactNativeLessons(db);
+    db.execute('PRAGMA user_version = 9');
   }
 }

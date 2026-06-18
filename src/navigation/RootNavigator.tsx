@@ -41,7 +41,9 @@ export function RootNavigator() {
         <Stack.Screen
           name="LessonList"
           component={LessonListScreen}
-          options={({ route }) => ({ title: route.params.levelLabel })}
+          options={({ route }) => ({
+            title: `${route.params.categoryName} - ${route.params.levelLabel}`,
+          })}
         />
         <Stack.Screen
           name="LessonDetail"

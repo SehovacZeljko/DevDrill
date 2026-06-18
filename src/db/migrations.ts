@@ -22,6 +22,11 @@ import { seedGitQuestions } from './seed/questions/git';
 import { seedDockerQuestions } from './seed/questions/docker';
 import { seedCicdQuestions } from './seed/questions/cicd';
 import { seedLaravelLessons } from './seed/lessons/laravel';
+import { seedReactLessons } from './seed/lessons/react';
+import { seedAngularLessons } from './seed/lessons/angular';
+import { seedSqlFundamentalsLessons } from './seed/lessons/sql-fundamentals';
+import { seedDataStructuresLessons } from './seed/lessons/data-structures';
+import { seedGitLessons } from './seed/lessons/git';
 
 const SCHEMA_DDL = `
   CREATE TABLE IF NOT EXISTS category (
@@ -143,5 +148,30 @@ export function runMigrations(db: QuickSQLiteConnection): void {
   if (currentVersion <= 1) {
     runLessonSchemaAndSeed(db);
     db.execute('PRAGMA user_version = 2');
+  }
+
+  if (currentVersion <= 2) {
+    seedReactLessons(db);
+    db.execute('PRAGMA user_version = 3');
+  }
+
+  if (currentVersion <= 3) {
+    seedAngularLessons(db);
+    db.execute('PRAGMA user_version = 4');
+  }
+
+  if (currentVersion <= 4) {
+    seedSqlFundamentalsLessons(db);
+    db.execute('PRAGMA user_version = 5');
+  }
+
+  if (currentVersion <= 5) {
+    seedDataStructuresLessons(db);
+    db.execute('PRAGMA user_version = 6');
+  }
+
+  if (currentVersion <= 6) {
+    seedGitLessons(db);
+    db.execute('PRAGMA user_version = 7');
   }
 }

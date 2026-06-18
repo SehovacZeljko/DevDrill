@@ -21,6 +21,7 @@ import { seedSystemDesignQuestions } from './seed/questions/system-design';
 import { seedGitQuestions } from './seed/questions/git';
 import { seedDockerQuestions } from './seed/questions/docker';
 import { seedCicdQuestions } from './seed/questions/cicd';
+import { seedLaravelLessons } from './seed/lessons/laravel';
 
 const SCHEMA_DDL = `
   CREATE TABLE IF NOT EXISTS category (
@@ -65,6 +66,27 @@ const SCHEMA_DDL = `
   );
 `;
 
+const LESSON_SCHEMA_DDL = `
+  CREATE TABLE IF NOT EXISTS lesson (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id       INTEGER NOT NULL REFERENCES category(id),
+    level             INTEGER NOT NULL,
+    title             TEXT NOT NULL,
+    content_markdown  TEXT NOT NULL,
+    sort_order        INTEGER DEFAULT 0,
+    is_active         INTEGER DEFAULT 1,
+    created_at        INTEGER NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS lesson_progress (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    lesson_id       INTEGER NOT NULL UNIQUE REFERENCES lesson(id),
+    status          INTEGER DEFAULT 0,
+    bookmarked      INTEGER DEFAULT 0,
+    last_viewed_at  INTEGER
+  );
+`;
+
 function runSchemaAndSeed(db: QuickSQLiteConnection): void {
   SCHEMA_DDL.trim().split(';').forEach(statement => {
     const trimmed = statement.trim();
@@ -98,6 +120,17 @@ function runSchemaAndSeed(db: QuickSQLiteConnection): void {
   seedCicdQuestions(db);
 }
 
+function runLessonSchemaAndSeed(db: QuickSQLiteConnection): void {
+  LESSON_SCHEMA_DDL.trim().split(';').forEach(statement => {
+    const trimmed = statement.trim();
+    if (trimmed) {
+      db.execute(trimmed);
+    }
+  });
+
+  seedLaravelLessons(db);
+}
+
 export function runMigrations(db: QuickSQLiteConnection): void {
   const versionResult = db.execute('PRAGMA user_version');
   const currentVersion = (versionResult.rows?._array[0]?.user_version as number) ?? 0;
@@ -105,5 +138,10 @@ export function runMigrations(db: QuickSQLiteConnection): void {
   if (currentVersion === 0) {
     runSchemaAndSeed(db);
     db.execute('PRAGMA user_version = 1');
+  }
+
+  if (currentVersion <= 1) {
+    runLessonSchemaAndSeed(db);
+    db.execute('PRAGMA user_version = 2');
   }
 }

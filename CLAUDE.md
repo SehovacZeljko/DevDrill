@@ -280,3 +280,4 @@ App launch
 - Prefer `react-native-quick-sqlite` for its synchronous API; avoid async DB wrappers where possible
 - When generating question content, aim for 3–8 sentence answers in markdown, including a code example where relevant
 - The app has no network calls — if you find yourself adding `fetch` or axios anywhere, stop and reconsider
+- Do not launch the iOS/Android simulator to verify changes. Rely on `tsc --noEmit` and `npm run lint` instead. Simulator verification (building, screenshotting, driving taps) is expensive in tokens and this environment has no working tap-automation (no `idb`, no Accessibility permission for `osascript`), so it stalls on manual handoff anyway. If a change genuinely needs visual/UX confirmation, ask the user to check it themselves rather than starting a build.

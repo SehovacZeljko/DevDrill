@@ -44,3 +44,24 @@ CREATE TABLE IF NOT EXISTS user_session (
   questions_seen    INTEGER DEFAULT 0,
   answers_revealed  INTEGER DEFAULT 0
 );
+
+-- Structured, read-through lesson content (fundamentals/advanced per field)
+CREATE TABLE IF NOT EXISTS lesson (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  category_id       INTEGER NOT NULL REFERENCES category(id),
+  level             INTEGER NOT NULL,        -- 1 fundamentals | 2 advanced
+  title             TEXT NOT NULL,
+  content_markdown  TEXT NOT NULL,
+  sort_order        INTEGER DEFAULT 0,
+  is_active         INTEGER DEFAULT 1,
+  created_at        INTEGER NOT NULL         -- unix timestamp
+);
+
+-- Per-lesson user progress (created lazily on first view)
+CREATE TABLE IF NOT EXISTS lesson_progress (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  lesson_id       INTEGER NOT NULL UNIQUE REFERENCES lesson(id),
+  status          INTEGER DEFAULT 0,         -- 0 unread | 1 read
+  bookmarked      INTEGER DEFAULT 0,         -- 0 | 1 boolean
+  last_viewed_at  INTEGER                    -- unix timestamp
+);

@@ -41,8 +41,42 @@ export interface CategoryWithCount extends Category {
   children?: CategoryWithCount[];
 }
 
+export interface Lesson {
+  id: number;
+  category_id: number;
+  level: number;
+  title: string;
+  content_markdown: string;
+  sort_order: number;
+  is_active: number;
+  created_at: number;
+}
+
+export interface LessonProgress {
+  id: number;
+  lesson_id: number;
+  status: number;
+  bookmarked: number;
+  last_viewed_at: number | null;
+}
+
+export interface LessonWithProgress extends Lesson {
+  status: number | null;
+  bookmarked: number | null;
+  last_viewed_at: number | null;
+}
+
+export interface CategoryWithLessonCount extends Category {
+  lesson_count: number;
+}
+
 export type RootStackParamList = {
+  ModeSelect: undefined;
   Home: undefined;
   Feed: { categoryId: number; categoryName: string };
   Bookmarks: undefined;
+  LessonField: undefined;
+  LessonLevel: { categoryId: number; categoryName: string };
+  LessonList: { categoryId: number; categoryName: string; level: number; levelLabel: string };
+  LessonDetail: { lessonId: number; lessonTitle: string };
 };

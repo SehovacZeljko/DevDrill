@@ -29,6 +29,11 @@ import { seedDataStructuresLessons } from './seed/lessons/data-structures';
 import { seedGitLessons } from './seed/lessons/git';
 import { seedAlgorithmsLessons } from './seed/lessons/algorithms';
 import { seedReactNativeLessons } from './seed/lessons/react-native';
+import { seedSystemDesignLessons } from './seed/lessons/system-design';
+import { seedDockerLessons } from './seed/lessons/docker';
+import { seedCicdBasicsLessons } from './seed/lessons/cicd-basics';
+import { seedJavaScriptLessons } from './seed/lessons/javascript';
+import { seedTypeScriptLessons } from './seed/lessons/typescript';
 
 const SCHEMA_DDL = `
   CREATE TABLE IF NOT EXISTS category (
@@ -185,5 +190,30 @@ export function runMigrations(db: QuickSQLiteConnection): void {
   if (currentVersion <= 8) {
     seedReactNativeLessons(db);
     db.execute('PRAGMA user_version = 9');
+  }
+
+  if (currentVersion <= 9) {
+    seedSystemDesignLessons(db);
+    db.execute('PRAGMA user_version = 10');
+  }
+
+  if (currentVersion <= 10) {
+    seedDockerLessons(db);
+    db.execute('PRAGMA user_version = 11');
+  }
+
+  if (currentVersion <= 11) {
+    seedCicdBasicsLessons(db);
+    db.execute('PRAGMA user_version = 12');
+  }
+
+  if (currentVersion <= 12) {
+    seedJavaScriptLessons(db);
+    db.execute('PRAGMA user_version = 13');
+  }
+
+  if (currentVersion <= 13) {
+    seedTypeScriptLessons(db);
+    db.execute('PRAGMA user_version = 14');
   }
 }

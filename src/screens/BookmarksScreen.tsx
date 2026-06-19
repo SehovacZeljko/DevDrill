@@ -14,6 +14,8 @@ import { colors } from '../utils/colors';
 type Props = NativeStackScreenProps<RootStackParamList, 'Bookmarks'>;
 type BookmarkTab = 'quizzes' | 'lessons';
 
+function noop() {}
+
 export default function BookmarksScreen({ navigation }: Props) {
   const [tab, setTab] = useState<BookmarkTab>('quizzes');
   const [questions, setQuestions] = useState<QuestionWithProgress[]>([]);
@@ -55,7 +57,13 @@ export default function BookmarksScreen({ navigation }: Props) {
 
   function renderLessonItem({ item }: { item: LessonWithProgress }) {
     return (
-      <LessonCard lesson={item} onPress={onLessonPress} onBookmarkToggle={onLessonBookmarkToggle} />
+      <LessonCard
+        lesson={item}
+        isSelected={false}
+        onPress={onLessonPress}
+        onBookmarkToggle={onLessonBookmarkToggle}
+        onToggleSelection={noop}
+      />
     );
   }
 

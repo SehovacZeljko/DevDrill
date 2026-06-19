@@ -1,3 +1,4 @@
+import { CheckSquare, Square } from 'lucide-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LessonWithProgress } from '../types';
 import { colors } from '../utils/colors';
@@ -5,18 +6,39 @@ import { LevelBadge } from './LevelBadge';
 
 interface Props {
   lesson: LessonWithProgress;
+  isSelected: boolean;
   onPress: (lesson: LessonWithProgress) => void;
   onBookmarkToggle: (lessonId: number, currentlyBookmarked: boolean) => void;
+  onToggleSelection: (lessonId: number) => void;
 }
 
-export function LessonCard({ lesson, onPress, onBookmarkToggle }: Props) {
+export function LessonCard({
+  lesson,
+  isSelected,
+  onPress,
+  onBookmarkToggle,
+  onToggleSelection,
+}: Props) {
   const isRead = lesson.status === 1;
   const isBookmarked = lesson.bookmarked === 1;
 
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(lesson)} activeOpacity={0.7}>
       <View style={styles.header}>
-        <LevelBadge level={lesson.level} />
+        <View style={styles.headerLeft}>
+          <TouchableOpacity
+            onPress={() => onToggleSelection(lesson.id)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={styles.checkbox}
+          >
+            {isSelected ? (
+              <CheckSquare size={20} color={colors.primary} />
+            ) : (
+              <Square size={20} color={colors.onSurfaceMuted} />
+            )}
+          </TouchableOpacity>
+          <LevelBadge level={lesson.level} />
+        </View>
         <TouchableOpacity
           onPress={() => onBookmarkToggle(lesson.id, isBookmarked)}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -46,6 +68,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  checkbox: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 16,

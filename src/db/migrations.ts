@@ -34,6 +34,7 @@ import { seedDockerLessons } from './seed/lessons/docker';
 import { seedCicdBasicsLessons } from './seed/lessons/cicd-basics';
 import { seedJavaScriptLessons } from './seed/lessons/javascript';
 import { seedTypeScriptLessons } from './seed/lessons/typescript';
+import { seedComplexityQuestions } from './seed/questions/complexity';
 
 const SCHEMA_DDL = `
   CREATE TABLE IF NOT EXISTS category (
@@ -215,5 +216,10 @@ export function runMigrations(db: QuickSQLiteConnection): void {
   if (currentVersion <= 13) {
     seedTypeScriptLessons(db);
     db.execute('PRAGMA user_version = 14');
+  }
+
+  if (currentVersion <= 14) {
+    seedComplexityQuestions(db);
+    db.execute('PRAGMA user_version = 15');
   }
 }

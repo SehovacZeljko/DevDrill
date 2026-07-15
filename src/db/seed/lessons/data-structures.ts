@@ -39,6 +39,8 @@ Insert 99 at index 1: [10, 99, 25, 7, 42, 16]
 
 Most high-level languages provide a **dynamic array** (JavaScript's \`Array\`, Python's \`list\`, Java's \`ArrayList\`) — one that automatically reallocates a larger underlying block and copies elements over when it runs out of capacity, giving the *appearance* of unbounded growth while keeping append operations O(1) amortized (occasional expensive resizes, averaged out, are cheap per-operation overall).
 
+**Traversal & sorting:** scanning an array front-to-back is O(n). On an *unsorted* array, finding a value is O(n) (linear search); sort it once — with an O(n log n) comparison sort like merge sort, quicksort, or heapsort — and repeated lookups drop to O(log n) via **binary search**, which halves the remaining range on each comparison. This "sort once, search many" tradeoff is exactly why sorted arrays underpin so many fast-lookup structures.
+
 The interview-relevant nuance: "insert at the end is O(1)" is only true *amortized* — any individual append that triggers a resize is actually O(n) for that one operation, copying every existing element into the new, larger block. Being able to explain *why* it still averages out to O(1) (each element is only ever copied a bounded number of times across all the resizes it experiences) demonstrates real understanding, not memorization.`,
   },
   {
@@ -63,13 +65,15 @@ class Node<T> {
 - **Insert/delete at the tail:** O(n) for a singly linked list (must traverse to find it), O(1) if you maintain a tail pointer and it's a **doubly** linked list (each node also points to its previous node)
 - **Search for a value:** O(n)
 
+**Traversal & sorting:** a linked list is traversed sequentially from the head (O(n)); with no random access it *can't* use binary search, so it's sorted with **merge sort** rather than quicksort — merging needs only sequential access and pointer relinking, no extra array allocation, giving O(n log n) time with O(1) auxiliary space.
+
 The key tradeoff against arrays: linked lists make insertion/deletion at arbitrary positions cheap (O(1) once you have a reference to the node, no shifting required) but give up O(1) random access entirely, and have worse memory locality (each node is a separate allocation, scattered in memory, which hurts CPU cache performance compared to an array's contiguous layout — a practical, often-overlooked reason arrays frequently outperform linked lists in real benchmarks despite linked lists' better theoretical insertion complexity).
 
 A common interview question is "when would you actually choose a linked list over a dynamic array?" — a genuinely good answer names a specific access pattern (frequent insertion/removal at arbitrary positions, with references already held to the relevant nodes, such as implementing certain queue/cache structures) rather than reflexively defaulting to one or the other.`,
   },
   {
     title: 'Stacks',
-    content: `A stack is a Last-In-First-Out (LIFO) structure: the most recently added element is the first one removed. It supports exactly two core operations — \`push\` (add to the top) and \`pop\` (remove from the top) — both O(1).
+    content: `A stack is a Last-In-First-Out (LIFO) structure: the most recently added element is the first one removed. It supports exactly two core operations — \`push\` (add to the top) and \`pop\` (remove from the top) — both O(1), plus \`peek\` (read the top) also O(1). There is no O(1) **lookup**: reaching any non-top element means popping everything above it, so searching a stack for a value is O(n) — you trade random access for cheap push/pop.
 
 \`\`\`text
 push(1) push(2) push(3)         pop() -> 3
@@ -93,7 +97,7 @@ The interview-relevant insight worth being able to articulate: any problem requi
   },
   {
     title: 'Queues',
-    content: `A queue is a First-In-First-Out (FIFO) structure: the earliest-added element is the first one removed — the opposite ordering discipline from a stack. The two core operations are \`enqueue\` (add to the back) and \`dequeue\` (remove from the front), both O(1) with a proper implementation.
+    content: `A queue is a First-In-First-Out (FIFO) structure: the earliest-added element is the first one removed — the opposite ordering discipline from a stack. The two core operations are \`enqueue\` (add to the back) and \`dequeue\` (remove from the front), both O(1) with a proper implementation (\`peek\` at the front is O(1) too). As with a stack, only the ends are accessible — searching for an arbitrary element is O(n), since you'd have to dequeue past everything ahead of it; the O(1) guarantee covers enqueue/dequeue/peek, not lookup.
 
 \`\`\`text
 enqueue(1) enqueue(2) enqueue(3)      dequeue() -> 1
@@ -293,6 +297,8 @@ const graph = new Map<string, string[]>([
 \`\`\`
 
 An adjacency list uses O(V + E) space (vertices plus edges) and is the standard choice for **sparse** graphs (relatively few edges compared to the maximum possible) — most real-world graphs. An adjacency matrix uses O(V²) space regardless of how many edges actually exist, making it wasteful for sparse graphs but giving O(1) "is there an edge between A and B" checks, which an adjacency list can't do without scanning a node's full neighbor list.
+
+**Operation costs (adjacency list):** adding a vertex or an edge is O(1); checking or deleting a specific edge is O(degree) — you scan that node's neighbor list — which an adjacency matrix instead does in O(1), at the cost of O(V²) space; deleting a vertex is O(V + E), since every edge touching it must be removed. There's no single "lookup" cost: finding whether a *value* exists means traversing the graph, which **BFS** or **DFS** does in O(V + E) (covered in the advanced lessons).
 
 The interview-relevant first step on almost any graph problem: explicitly state which representation you're using and why, since it directly determines the complexity of the traversal algorithms (BFS/DFS, covered in the advanced lessons) you'll build on top of it.`,
   },
@@ -708,6 +714,57 @@ export function seedDataStructuresLessons(db: QuickSQLiteConnection): void {
     db.execute(
       'INSERT INTO lesson (category_id, level, title, content_markdown, sort_order, created_at) VALUES (?, 2, ?, ?, ?, ?)',
       [categoryId, lesson.title, lesson.content, index, CREATED_AT],
+    );
+  });
+}
+
+const MIND_MAP_LESSON = {
+  title: 'Data Structures & Big O at a Glance (Mind Map)',
+  content: `A single-page map of the core data structures and how they connect — arrays, linked lists, stacks, queues, hash tables, trees, and graphs — each annotated with the Big O cost of its common operations (lookup, insert, delete) and the traversal or sorting techniques that go with it.
+
+![Data Structures Mind Map](asset:ds-mind-map)
+
+Use it as a quick revision sheet: tap the image to open it fullscreen, then pinch to zoom into any branch. It ties the individual lessons together, showing at a glance which structure gives you O(1), O(log n), or O(n) for a given operation.`,
+};
+
+export function seedDataStructuresMindMapLesson(db: QuickSQLiteConnection): void {
+  const result = db.execute('SELECT id FROM category WHERE slug = ?', ['data-structures']);
+  if (!result.rows || result.rows.length === 0) { return; }
+  const categoryId = result.rows._array[0].id as number;
+
+  // Append after the existing level-1 lessons so existing rows keep their order.
+  const orderResult = db.execute(
+    'SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM lesson WHERE category_id = ? AND level = 1',
+    [categoryId],
+  );
+  const sortOrder = (orderResult.rows?._array[0]?.max_order as number) + 1;
+
+  db.execute(
+    'INSERT INTO lesson (category_id, level, title, content_markdown, sort_order, created_at) VALUES (?, 1, ?, ?, ?, ?)',
+    [categoryId, MIND_MAP_LESSON.title, MIND_MAP_LESSON.content, sortOrder, CREATED_AT],
+  );
+}
+
+// Re-applies the current lesson text to already-seeded installs. The INSERT seed
+// above only runs on a fresh DB, so content edits to existing lessons need this to
+// propagate. Rows are matched by (level, title) within the category, so it updates
+// content in place without duplicating, reordering, or touching user progress.
+export function resyncDataStructuresLessons(db: QuickSQLiteConnection): void {
+  const result = db.execute('SELECT id FROM category WHERE slug = ?', ['data-structures']);
+  if (!result.rows || result.rows.length === 0) { return; }
+  const categoryId = result.rows._array[0].id as number;
+
+  FUNDAMENTALS_LESSONS.forEach(lesson => {
+    db.execute(
+      'UPDATE lesson SET content_markdown = ? WHERE category_id = ? AND level = 1 AND title = ?',
+      [lesson.content, categoryId, lesson.title],
+    );
+  });
+
+  ADVANCED_LESSONS.forEach(lesson => {
+    db.execute(
+      'UPDATE lesson SET content_markdown = ? WHERE category_id = ? AND level = 2 AND title = ?',
+      [lesson.content, categoryId, lesson.title],
     );
   });
 }

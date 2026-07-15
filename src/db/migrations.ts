@@ -25,7 +25,7 @@ import { seedLaravelLessons } from './seed/lessons/laravel';
 import { seedReactLessons } from './seed/lessons/react';
 import { seedAngularLessons } from './seed/lessons/angular';
 import { seedSqlFundamentalsLessons } from './seed/lessons/sql-fundamentals';
-import { seedDataStructuresLessons } from './seed/lessons/data-structures';
+import { seedDataStructuresLessons, seedDataStructuresMindMapLesson, resyncDataStructuresLessons } from './seed/lessons/data-structures';
 import { seedGitLessons } from './seed/lessons/git';
 import { seedAlgorithmsLessons } from './seed/lessons/algorithms';
 import { seedReactNativeLessons } from './seed/lessons/react-native';
@@ -221,5 +221,15 @@ export function runMigrations(db: QuickSQLiteConnection): void {
   if (currentVersion <= 14) {
     seedComplexityQuestions(db);
     db.execute('PRAGMA user_version = 15');
+  }
+
+  if (currentVersion <= 15) {
+    seedDataStructuresMindMapLesson(db);
+    db.execute('PRAGMA user_version = 16');
+  }
+
+  if (currentVersion <= 16) {
+    resyncDataStructuresLessons(db);
+    db.execute('PRAGMA user_version = 17');
   }
 }

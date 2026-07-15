@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Markdown from 'react-native-markdown-display';
+import Markdown, { ASTNode } from 'react-native-markdown-display';
 import { getDatabase } from '../db/client';
 import { getLessonById } from '../db/repositories/lessonRepository';
 import { useLessonProgress } from '../hooks/useLessonProgress';
@@ -9,8 +9,30 @@ import { LessonWithProgress, RootStackParamList } from '../types';
 import { colors } from '../utils/colors';
 import { markdownStyles } from '../utils/markdown';
 import { LevelBadge } from '../components/LevelBadge';
+import { ZoomableImage } from '../components/ZoomableImage';
+import { resolveLessonAsset } from '../utils/lessonAssets';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LessonDetail'>;
+
+// Render markdown images that reference a bundled asset (src="asset:<key>") as a
+// tappable, zoomable image. Anything else falls through to no render, since the
+// app is offline and only bundled lesson images are supported.
+const markdownRules = {
+  image: (node: ASTNode) => {
+    const src = typeof node.attributes.src === 'string' ? node.attributes.src : '';
+    const asset = resolveLessonAsset(src);
+    if (!asset) { return null; }
+    return (
+      <ZoomableImage
+        key={node.key}
+        source={asset}
+        accessibilityLabel={
+          typeof node.attributes.alt === 'string' ? node.attributes.alt : undefined
+        }
+      />
+    );
+  },
+};
 
 export default function LessonDetailScreen({ route, navigation }: Props) {
   const { lessonId } = route.params;
@@ -53,7 +75,7 @@ export default function LessonDetailScreen({ route, navigation }: Props) {
       </View>
       <Text style={styles.title}>{lesson.title}</Text>
       <View style={styles.divider} />
-      <Markdown style={markdownStyles}>{lesson.content_markdown}</Markdown>
+      <Markdown style={markdownStyles} rules={markdownRules}>{lesson.content_markdown}</Markdown>
     </ScrollView>
   );
 }
